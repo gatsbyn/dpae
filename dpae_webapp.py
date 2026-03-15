@@ -26,6 +26,8 @@ app = Flask(__name__)
 CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.ini")
 
 def load_config():
+    if os.environ.get("DPAE_SIRET"):
+        return {"siret": os.environ.get("DPAE_SIRET", ""), "nom": os.environ.get("DPAE_NOM", ""), "prenom": os.environ.get("DPAE_PRENOM", ""), "motdepasse": os.environ.get("DPAE_MDP", ""), "service": os.environ.get("DPAE_SERVICE", "25")}
     if not os.path.exists(CONFIG_FILE):
         return {}
     c = configparser.RawConfigParser()
