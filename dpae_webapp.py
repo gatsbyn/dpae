@@ -31,12 +31,6 @@ def load_config():
     if not os.path.exists(CONFIG_FILE):
         return {}
     c = configparser.RawConfigParser()
-    c.read(CONFIG_FILE, encoding="utf-8")
-    if "URSSAF" not in c:
-        return {}
-    u = c["URSSAF"]
-    return {k: u.get(k, "").strip() for k in ["siret","nom","prenom","motdepasse","service"]}
-
 def save_config(data):
     c = configparser.RawConfigParser()
     c.add_section("URSSAF")
@@ -115,7 +109,13 @@ def send_dpae():
     token = r.text.strip()
 
     # Deposit
-    gz = gzip.compress(xml_content.encode("iso-8859-1", errors="replace"))
+    try:
+        xml_bytes = xml_content.encode("utf-8")
+        xml_text = xml_bytes.decode("utf-8")
+        xml_iso = xml_text.encode("iso-8859-1", errors="xmlcharrefreplace")
+    except:
+        xml_iso = xml_content.encode("iso-8859-1", errors="replace")
+    gz = gzip.compress(xml_iso)
     try:
         r2 = req.post("https://depot.dpae-edi.urssaf.fr/deposer-dsn/1.0/",
             data=gz,
